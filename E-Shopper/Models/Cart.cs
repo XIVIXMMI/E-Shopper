@@ -27,7 +27,7 @@ namespace E_Shopper.Models
             Lines.RemoveAll(l => l.Product?.ProductId == product.ProductId);
         public decimal ComputeTotalValue()
         {
-            return (decimal)Lines.Sum(e => e.Product?.ProductPrice * e.Quantity);
+            return (decimal)Lines.Sum(e => e.Product?.ProductPrice *(1-e.Product?.ProductDiscount)* e.Quantity);
         }
 
         public void Clear() => Lines.Clear();
