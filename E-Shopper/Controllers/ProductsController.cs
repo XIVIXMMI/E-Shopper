@@ -7,12 +7,14 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using E_Shopper.Data;
 using E_Shopper.Models;
+using E_Shopper.Models.ViewModels;
 
 namespace E_Shopper.Controllers
 {
     public class ProductsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        public int PageSize = 9;
 
         public ProductsController(ApplicationDbContext context)
         {
@@ -20,14 +22,49 @@ namespace E_Shopper.Controllers
         }
 
         // GET: Products
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int productPage=1)
         {
-            var applicationDbContext = _context.Products.Include(p => p.Category).Include(p => p.Color).Include(p => p.Size);
-            return View(await applicationDbContext.ToListAsync());
+            return View(
+                new ProductListViewModel
+                {
+                    Products = _context.Products
+                    .Skip((productPage - 1) * PageSize)
+                    .Take(PageSize),
+                    PagingInfo = new PagingInfo
+                    {
+                        ItemPerPage = PageSize,
+                        CurrentPage = productPage,
+                        TotalItems = _context.Products.Count()
+                    }
+                });
+        }
+        [HttpPost]
+        public async Task<IActionResult> Search(string keywords,int productPage)
+        {
+            productPage = Math.Max(productPage, 1); // Đảm bảo productPage không âm và ít nhất là 1
+
+            return View("Index",
+                new ProductListViewModel
+                {
+                    Products = _context.Products
+                    .Where(p=>p.ProductName.Contains(keywords))
+                    .Skip((productPage - 1) * PageSize)
+                    .Take(PageSize),
+                    PagingInfo = new PagingInfo
+                    {
+                        ItemPerPage = PageSize,
+                        CurrentPage = productPage,
+                        TotalItems = _context.Products.Count()
+                    }
+                });
         }
         public async Task<IActionResult> ProductByCat(int categoryId)
         {
-            var applicationDbContext = _context.Products.Where(p=>p.CategoryId== categoryId).Include(p => p.Category).Include(p => p.Color).Include(p => p.Size);
+            var applicationDbContext = _context.Products
+                .Where(p=>p.CategoryId == categoryId)
+                .Include(p => p.Category)
+                .Include(p => p.Color)
+                .Include(p => p.Size);
             return View("Index",await applicationDbContext.ToListAsync());
         }
 
