@@ -20,6 +20,47 @@ namespace E_Shopper.Controllers
         {
             _context = context;
         }
+        public class PriceRange
+        {
+            public int Min { get; set; }
+            public int Max { get; set; }
+        }
+        public IActionResult GetFilteredProducts([FromBody] FilterData filter)
+        {
+            var filterProducts = _context.Products.ToList();
+            if(filter.PriceRange != null && filter.PriceRange.Count >0 && !filter.PriceRange.Contains("all"))
+            {
+                List<PriceRange> priceRanges = new List<PriceRange>();
+                foreach(var range in filter.PriceRange)
+                {
+                    var value = range.Split("-").ToArray();
+                    PriceRange priceRange = new PriceRange();
+                    priceRange.Min = Int16.Parse(value[0]);
+                    priceRange.Max = Int16.Parse(value[0]);
+                    priceRanges.Add(priceRange);
+                }
+                filterProducts = filterProducts
+                    .Where(p => priceRanges
+                    .Any(r => p.ProductPrice >= r.Min && p.ProductPrice <= r.Max))
+                    .ToList();
+            }
+            if (filter.ColorRange != null && filter.ColorRange.Count > 0 && !filter.ColorRange.Contains("all"))
+            {
+                    filterProducts = filterProducts
+                        .Where(p => filter.ColorRange
+                        .Contains(p.Color.ColorName))
+                        .ToList();   
+
+            }
+            if (filter.SizeRange != null && filter.SizeRange.Count > 0 && !filter.SizeRange.Contains("all"))
+            {    
+                    filterProducts = filterProducts
+                        .Where(p => filter.SizeRange
+                        .Contains(p.Size.SizeName))
+                        .ToList();
+            }
+            return PartialView("_ReturnProducts",filterProducts);
+        }
 
         // GET: Products
         public async Task<IActionResult> Index(int productPage=1)
@@ -42,7 +83,6 @@ namespace E_Shopper.Controllers
         public async Task<IActionResult> Search(string keywords,int productPage)
         {
             productPage = Math.Max(productPage, 1); // Đảm bảo productPage không âm và ít nhất là 1
-
             return View("Index",
                 new ProductListViewModel
                 {
