@@ -86,7 +86,7 @@
             <!-- Size Start -->
             <div class="mb-5">
                 <h5 class="font-weight-semi-bold mb-4">Filter by size</h5>
-                <form id="size-filer-form">
+                <form id="size-filter-form">
                     <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
                         <input type="checkbox" class="custom-control-input" val="all" checked id="size-all">
                         <label class="custom-control-label" for="size-all">All Size</label>
@@ -119,7 +119,7 @@
                     </div>
                 </form>
             </div>
-            <button id="btnFilter" class="fa fa-search">Filter</button>
+            <button id="btnFilter" class="fa fa-search bg-transparent text-primary">Filter</button>
             <!-- Size End -->
         </div>
         <!-- Shop Sidebar End -->
@@ -179,17 +179,18 @@
 </div>
 <script>
     document.getElementById("btnFilter").addEventListener("click", function () {
-        var priceRange = getSelectedCheckboxes("price-filter-form");
-        var colorRange = getSelectedCheckboxes("color-filter-form");
-        var sizeRange = getSelectedCheckboxes("size-filter-form");
+        alert ("The page has filtered")
+        var priceRanges = getSelectedCheckboxes("price-filter-form");
+        var colors = getSelectedCheckboxes("color-filter-form");
+        var sizes = getSelectedCheckboxes("size-filter-form");
         var data = {
-            PriceRange: priceRange,
-            ColorRange: colorRange,
-            SizeRange: sizeRange
+            PriceRanges: priceRanges,
+            Colors: colors,
+            Sizes: sizes
         }
-        fetch("/Products/GetFilteredProducts",{
+        fetch("/Products/GetFilteredProducts", {
             method: "POST",
-            headers:{
+            headers: {
                 "Content-Type":"application/json"
             },
             body: JSON.stringify(data)     
@@ -207,7 +208,7 @@
         })
     })
     function getSelectedCheckboxes(formId){
-        var checkboxes = $('#' + formId + ' input[type=checkbox]:checked');
+        var checkboxes = $('#' + formId + ' input[type="checkbox"]:checked');
         var values = []
         checkboxes.each(function(){
             values.push($(this).attr('val'))
