@@ -179,7 +179,7 @@
 </div>
 <script>
     document.getElementById("btnFilter").addEventListener("click", function () {
-        alert ("The page has filtered")
+        alert ("The page has filtered");
         var priceRanges = getSelectedCheckboxes("price-filter-form");
         var colors = getSelectedCheckboxes("color-filter-form");
         var sizes = getSelectedCheckboxes("size-filter-form");
@@ -202,11 +202,61 @@
             }
         }).then(function(results){
             $("#filtered-products").html(results);
+            var TotalItems = document.querySelectorAll(".col-lg-4");
+            var PageSize = 9;
+            var TotalPages = Math.ceil(TotalItems.length/PageSize);
+            const div = document.createElement("div");
+            div.classList.add("col-12","pb-1");
+            const nav = document.createElement("nav");
+            nav.classList.add("col-12","pb-1");
+
+            const ul = document.createElement("ul");
+            ul.classList.add("pagination","justify-content-center","mb-3");
+            for(var i = 1; i <=TotalPages; i++){
+                var li = document.createElement("li");
+                li.classList.add("page-item");
+                var a = document.createElement("a");
+                a.classList.add("page-link");
+                a.innerHTML = i;
+                a.addEventListener('click', handlePageLinkClick)
+                a.setAttribute("href","#");
+                li.appendChild(a);
+                ul.appendChild(li);
+            }
+            nav.appendChild(ul);
+            div.appendChild(nav);
+            document.getElementById("filtered-products").appendChild(div);
+            ShowPage(1);
+
         })
         .catch(function(error){
             console.log("An error occured: ", error)
         })
     })
+
+
+    function handlePageLinkClick(event){
+        event.prevenDefault();
+        var pageNumber = parseInt(event.target.textContent);
+        ShowPage(pageNumber);
+
+    }
+
+    function ShowPage(pageNumber) {
+        var productItems = document.querySelectorAll(".col-lg-4");
+        var itemsPerPage = 9;
+        var startIndex = (pageNumber-1)*itemsPerPage;
+        var endIndex = startIndex + itemsPerPage;
+
+        for(var i = 0; i <= productItems.length; i++){
+            if(i >= startIndex && i  <endIndex){
+                productItems[i].style.display = 'block';
+            }else{
+                productItems[i].style.display = 'none';
+            }
+        }
+    }
+
     function getSelectedCheckboxes(formId){
         var checkboxes = $('#' + formId + ' input[type="checkbox"]:checked');
         var values = []

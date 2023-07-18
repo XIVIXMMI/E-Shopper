@@ -3,7 +3,8 @@
 @{
     ViewData["Title"] = "Create";
 }
-
+<script src="https://cdn.ckeditor.com/ckeditor5/38.1.1/classic/ckeditor.js"></script>
+    
 <h1>Create</h1>
 
 <h4>Product</h4>
@@ -69,7 +70,14 @@
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
-
+<script>
+    ClassicEditor
+        .create(document.querySelector('#ProductDescription'))
+        .catch(error => {
+            console.error(error);
+        });
+</script>
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
 }
